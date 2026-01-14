@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Uploader</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- RemixIcon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    <style>
+        /* --- CSS Variables untuk Tema --- */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #13B497 0%, #59D4A4 100%);
+            --background-solid: #FFFFFF; /* <-- Background diubah menjadi putih */
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --border-color: rgba(255, 255, 255, 0.3);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        /* --- Reset & Global Styles --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Background Solid Color */
+            background-color: var(--background-solid);
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        /* --- Grid Layout --- */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* --- Glassmorphism Card --- */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .card-title i {
+            font-size: 1.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* --- Media Box --- */
+        .media-box {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #1a202c;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #4a5568;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .media-box i {
+            font-size: 3rem;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+
+        /* --- Button & Input Styles --- */
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .file-input-label {
+            flex-grow: 1;
+            padding: 0.8rem 1.2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 120px;
+            text-decoration: none;
+        }
+
+        .file-input-label.primary {
+            background: var(--primary-gradient);
+        }
+
+        .file-input-label.secondary {
+            background: var(--secondary-gradient);
+        }
+        
+        .file-input-label.success {
+            background: var(--success-gradient);
+        }
+
+        .file-input-label:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+        
+        /* --- Preview Stage (Area Hasil) --- */
+        #preview-stage {
+            grid-column: 1 / -1; /* Memanjang ke seluruh lebar */
+        }
+        
+        #preview-stage .media-box {
+            aspect-ratio: 21 / 9; /* Lebih lebar */
+            min-height: 400px;
+        }
+        
+        #display-photo, #display-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Menjaga rasio asli */
+            display: none;
+        }
+        
+        #display-audio {
+            width: 100%;
+            margin-top: 1.5rem;
+            border-radius: 10px;
+        }
+
+        /* --- Status Text --- */
+        .status {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Media Uploader</h1>
+            <p>Unggah dan tampilkan media Anda dengan elegan.</p>
+        </header>
+
+        <main>
+            <div class="content-grid">
+                
+                <!-- Kartu Unggah -->
+                <section class="card">
+                    <h2 class="card-title"><i class="ri-upload-cloud-2-line"></i> Pilih Media</h2>
+                    <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">Pilih file dari perangkat Anda untuk ditampilkan.</p>
+                    <div class="button-group">
+                        <label for="image-upload" class="file-input-label primary">
+                            <i class="ri-image-add-line"></i> Pilih Foto
+                        </label>
+                        <input type="file" id="image-upload" accept="image/*">
+                    </div>
+                    <div class="button-group" style="margin-top: 1rem;">
+                        <label for="video-upload" class="file-input-label secondary">
+                            <i class="ri-movie-2-line"></i> Pilih Video
+                        </label>
+                        <input type="file" id="video-upload" accept="video/*">
+                    </div>
+                    <div class="button-group" style="margin-top: 1rem;">
+                        <label for="audio-upload" class="file-input-label success">
+                            <i class="ri-music-2-line"></i> Pilih Audio
+                        </label>
+                        <input type="file" id="audio-upload" accept="audio/*">
+                    </div>
+                    <p id="upload-status" class="status">Tidak ada file yang dipilih.</p>
+                </section>
+                
+                <!-- Area Preview Hasil -->
+                <section class="card" id="preview-stage">
+                    <h2 class="card-title"><i class="ri-play-circle-line"></i> Panggung Preview</h2>
+                    <div class="media-box">
+                        <img id="display-photo" alt="Hasil Foto">
+                        <video id="display-video" controls></video>
+                        <audio id="display-audio" controls></audio>
+                        <p id="preview-placeholder">Hasil media akan tampil di sini.</p>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- Seleksi Elemen DOM ---
+        
+        // Input Unggah
+        const imageUpload = document.getElementById('image-upload');
+        const videoUpload = document.getElementById('video-upload');
+        const audioUpload = document.getElementById('audio-upload');
+
+        // Area Pemutar & Status
+        const displayPhoto = document.getElementById('display-photo');
+        const displayVideo = document.getElementById('display-video');
+        const displayAudio = document.getElementById('display-audio');
+        const previewPlaceholder = document.getElementById('preview-placeholder');
+        
+        const uploadStatus = document.getElementById('upload-status');
+
+        // --- Fungsi Bantuan untuk Menampilkan Media ---
+        function showOnlyMedia(type) {
+            displayPhoto.style.display = 'none';
+            displayVideo.style.display = 'none';
+            displayAudio.style.display = 'none';
+            previewPlaceholder.style.display = 'none';
+
+            switch (type) {
+                case 'photo':
+                    displayPhoto.style.display = 'block';
+                    break;
+                case 'video':
+                    displayVideo.style.display = 'block';
+                    break;
+                case 'audio':
+                    displayAudio.style.display = 'block';
+                    break;
+            }
+        }
+
+        // --- Fungsi Umum untuk Menangani File ---
+        function handleFile(file) {
+            if (!file) return;
+            
+            const url = URL.createObjectURL(file);
+            let statusText = '';
+
+            if (file.type.startsWith('image/')) {
+                displayPhoto.src = url;
+                showOnlyMedia('photo');
+                statusText = `Foto "${file.name}" dimuat.`;
+            } else if (file.type.startsWith('video/')) {
+                displayVideo.src = url;
+                showOnlyMedia('video');
+                statusText = `Video "${file.name}" dimuat.`;
+            } else if (file.type.startsWith('audio/')) {
+                displayAudio.src = url;
+                showOnlyMedia('audio');
+                statusText = `Audio "${file.name}" dimuat.`;
+            }
+            
+            uploadStatus.innerText = statusText;
+            uploadStatus.style.color = '#13B497'; // Warna sukses
+        }
+
+        // --- Event Listener untuk Semua Input File ---
+        imageUpload.addEventListener('change', (event) => {
+            handleFile(event.target.files[0]);
+        });
+
+        videoUpload.addEventListener('change', (event) => {
+            handleFile(event.target.files[0]);
+        });
+
+        audioUpload.addEventListener('change', (event) => {
+            handleFile(event.target.files[0]);
+        });
+
+    </script>
+
+</body>
+</html>
